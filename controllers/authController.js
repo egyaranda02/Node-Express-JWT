@@ -3,7 +3,7 @@ var mysql = require('mysql');
 var jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-const { isEmail } = require('validator');
+const validator = require('validator');
 const maxAge = 60 * 60 * 5;
 
 const createToken = (id) =>{
@@ -26,7 +26,7 @@ module.exports.signup_post = function(req, res){
         password: req.body.password
     }
     bcrypt.hash(post.password, saltRounds, function(err, hash) {
-        if(isEmail(post.email)){
+        if(validator.isEmail(post.email)){
             post.password = hash;
             var query = "SELECT email FROM ?? WHERE ?? = ?";
             var table = ["users", "email", post.email];
@@ -45,16 +45,16 @@ module.exports.signup_post = function(req, res){
                             }else{
                                 const token = createToken(rows.insertId);
                                 res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000});
-                                res.json({ user: rows.insertId });
+                                res.status(201).json({ user: rows.insertId });
                             }
                         });
                     }else{
-                        res.send("Email already used by another user");
+                        res.status(400).json({errors: 'Email already been used by another user!'});
                     }
                 }
             })
         }else{
-            res.send('Please enter a valid email!');
+            res.status(400).json({errors: 'Please enter a valid email!'});
         }
     });
 }
