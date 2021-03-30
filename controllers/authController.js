@@ -76,7 +76,7 @@ module.exports.login_post = (req, res)=>{
             if(results.length > 0){
                 const comparison = await bcrypt.compare(post.password, results[0].password);
                 if(comparison){
-                    res.status(201).json( {id_user: results[0].id_user} );
+                    res.status(201).json( {user: results[0].id_user} );
                     console.log("Login Success!");
                 }else{
                     res.status(400).json({passwordErrors: "Email and Password doesn't match"})

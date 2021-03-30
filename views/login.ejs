@@ -1,6 +1,6 @@
 <%- include('partials/header'); -%>
 
-<form action="">
+<form action="" method="post">
     <h2>Login!</h2>
     <label for="email">Email</label>
     <input type="email" name="email" required>
@@ -9,8 +9,10 @@
     <label for="password">password</label>
     <input type="password" name="password" minlength="6" required>
     <div class="password error"></div>
+
     <button>Login</button>
 </form>
+
 <script>
     const form = document.querySelector('form');
     const emailError = document.querySelector('.email.error');
@@ -20,8 +22,6 @@
         e.preventDefault();
 
         //reset error 
-        emailError = '';
-        passwordError = '';
 
 
         const email = form.email.value;
@@ -35,8 +35,9 @@
             });
             const data = await res.json();
             console.log(data);
-            if(data.errors){
-                emailError.textContent = data;
+            if(data){
+                emailError.textContent = data.emailErrors;
+                passwordError.textContent = data.passwordErrors;
             }
             if(data.user){
                 location.assign('/');
