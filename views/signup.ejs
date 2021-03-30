@@ -28,8 +28,8 @@
             });
             const data = await res.json();
             console.log(data);
-            if(data.errors){
-                emailError.textContent = data;
+            if(data.emailErrors){
+                emailError.textContent = data.emailErrors;
             }
             if(data.user){
                 location.assign('/');

@@ -31,11 +31,11 @@ module.exports.signup_post = function(req, res){
             var query = "SELECT email FROM ?? WHERE ?? = ?";
             var table = ["users", "email", post.email];
             query = mysql.format(query, table);
-            connection.query(query, function(error, rows){
+            connection.query(query, function(error, results, fields){
                 if(error){
                     console.log(error);
                 }else{
-                    if(rows.length == 0 ){
+                    if(results == 0 ){
                         var query = "INSERT INTO ?? SET ?";
                         var table = ["users"];
                         query = mysql.format(query, table);
@@ -49,16 +49,41 @@ module.exports.signup_post = function(req, res){
                             }
                         });
                     }else{
-                        res.status(400).json({errors: 'Email already been used by another user!'});
+                        res.status(400).json({emailErrors: 'Email already been used by another user!'});
                     }
                 }
             })
         }else{
-            res.status(400).json({errors: 'Please enter a valid email!'});
+            res.status(400).json({emailErrors: 'Please enter a valid email!'});
         }
     });
 }
 
 module.exports.login_post = (req, res)=>{
-    res.send('User logged in!');
+    var post = {
+        email: req.body.email,
+        password: req.body.password
+    }
+    
+    var query = "SELECT * FROM ?? where ?? = ?";
+    var table = ["users", "email", post.email];
+    query = mysql.format(query, table);
+
+    connection.query(query, async function(error, results, fields){
+        if(error){
+            console.log(error);
+        }else{
+            if(results.length > 0){
+                const comparison = await bcrypt.compare(post.password, results[0].password);
+                if(comparison){
+                    res.status(201).json( {id_user: results[0].id_user} );
+                    console.log("Login Success!");
+                }else{
+                    res.status(400).json({passwordErrors: "Email and Password doesn't match"})
+                }
+            }else{
+                res.status(400).json({emailErrors: "Email doesn't exists"});
+            };
+        }
+    });
 }
